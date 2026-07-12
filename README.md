@@ -80,6 +80,11 @@ For more option, see APlayer [options](https://aplayer.js.org/#/home?id=options)
 
 ## Change log
 
+### v2.0.10
+
+- Fix CDN chunk path host for `dist/app.js` (avoid white screen)
+- Release hotfix build for jsDelivr `lrpli/goindex-theme-acrou`
+
 ### v2.0.9
 
 - Add local library tools (filter, sort, favorites, recent)
