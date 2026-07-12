@@ -47,13 +47,12 @@ class BuildAppJSPlugin {
             cdnDependencies.filter((e) => e.name === "").map((e) => e.css)
           );
         }
-        let content = `
-          var scripts = ${JSON.stringify(jsarr)};
-          ${cdnjs}
-          scripts.forEach((item) => {
-            document.write('<script src="' + item + '"></script>');
-          });
-        `;
+        let content = `var scripts = ${JSON.stringify(jsarr)};
+${cdnjs}
+scripts.forEach((item) => {
+  document.write('<script src="' + item + '"></script>');
+});
+`;
         let cssContent = "";
         cssarr.forEach((item) => {
           cssContent += `@import url(${item});\n`;

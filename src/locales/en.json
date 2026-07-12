@@ -35,6 +35,35 @@
   "search": {
     "placeholder": "Search resources..."
   },
+  "library": {
+    "title": "File tools",
+    "filterPlaceholder": "Filter this folder...",
+    "type": "File type",
+    "sort": "Sort files",
+    "favorites": "Favorites",
+    "history": "Library",
+    "recent": "Recent",
+    "empty": "No favorites or recent files yet.",
+    "noMatches": "No files match the current filters.",
+    "toggleFavorite": "Add or remove favorite",
+    "types": {
+      "all": "All files",
+      "folder": "Folders",
+      "image": "Images",
+      "video": "Videos",
+      "audio": "Audio",
+      "document": "Documents",
+      "archive": "Archives"
+    },
+    "sorts": {
+      "nameAsc": "Name: A to Z",
+      "nameDesc": "Name: Z to A",
+      "modifiedDesc": "Modified: newest first",
+      "modifiedAsc": "Modified: oldest first",
+      "sizeDesc": "Size: largest first",
+      "sizeAsc": "Size: smallest first"
+    }
+  },
   "page": {
     "video": {
       "play": "Play",

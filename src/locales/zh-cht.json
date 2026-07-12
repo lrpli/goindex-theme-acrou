@@ -35,6 +35,35 @@
   "search": {
     "placeholder": "搜索..."
   },
+  "library": {
+    "title": "檔案工具",
+    "filterPlaceholder": "篩選目前目錄...",
+    "type": "檔案類型",
+    "sort": "排序方式",
+    "favorites": "收藏",
+    "history": "收藏與最近瀏覽",
+    "recent": "最近瀏覽",
+    "empty": "還沒有收藏或最近瀏覽的檔案。",
+    "noMatches": "沒有檔案符合目前篩選條件。",
+    "toggleFavorite": "新增或移除收藏",
+    "types": {
+      "all": "全部檔案",
+      "folder": "資料夾",
+      "image": "圖片",
+      "video": "影片",
+      "audio": "音訊",
+      "document": "文件",
+      "archive": "壓縮檔"
+    },
+    "sorts": {
+      "nameAsc": "名稱：A 到 Z",
+      "nameDesc": "名稱：Z 到 A",
+      "modifiedDesc": "修改時間：最新優先",
+      "modifiedAsc": "修改時間：最早優先",
+      "sizeDesc": "大小：從大到小",
+      "sizeAsc": "大小：從小到大"
+    }
+  },
   "page": {
     "video": {
       "play": "播放",

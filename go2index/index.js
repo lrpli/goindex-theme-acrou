@@ -66,7 +66,7 @@ var  authConfig  =  {
 var themeOptions = {
   cdn: "https://cdn.jsdelivr.net/gh/Aicirou/goindex-theme-acrou",
 // Theme version number
-  version: "2.0.8",
+  version: "2.0.9",
 //Optional default system language: en/zh-chs/zh-cht
   languages: "en",
   render: {
@@ -103,6 +103,18 @@ var themeOptions = {
 	    * Audio player options
 	    */
   audio: {},
+  /**
+    * Library panel options
+    * favorites / recent / local filter and sort
+    */
+  library: {
+    enable: true,
+    default_sort: "name-asc",
+    default_filter: "all",
+    max_recent: 12,
+    menu_default_open: false,
+    storage_key: "go2index-library",
+  },
 };
 // =======Options END=======
 

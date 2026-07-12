@@ -34,6 +34,14 @@ var themeOptions = {
   audio: {
     autoplay: false,
   },
+  library: {
+    enable: true,
+    default_sort: "name-asc",
+    default_filter: "all",
+    max_recent: 12,
+    menu_default_open: false,
+    storage_key: "go2index-library",
+  },
 };
 window.gdconfig = JSON.parse(
   JSON.stringify({ version: authConfig.version, themeOptions: themeOptions })

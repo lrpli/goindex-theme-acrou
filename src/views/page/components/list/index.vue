@@ -33,6 +33,19 @@
             <use :xlink:href="icons(file.mimeType)" />
           </svg>
           {{ file.name }}
+          <button
+            class="button is-white is-small g2-list-favorite"
+            type="button"
+            :title="$t('library.toggleFavorite')"
+            :aria-label="$t('library.toggleFavorite')"
+            @click.stop="toggleFavorite(file)"
+          >
+            <i
+              class="fa"
+              :class="isFavorite(file) ? 'fa-star has-text-warning' : 'fa-star-o'"
+              aria-hidden="true"
+            ></i>
+          </button>
           <span
             class="has-text-grey g2-file-desc"
             v-if="isShowDesc"
@@ -86,7 +99,13 @@ export default {
     },
     action: {
       type: Function,
-    }
+    },
+    isFavorite: {
+      type: Function,
+    },
+    toggleFavorite: {
+      type: Function,
+    },
   },
   computed: {
     columns() {
@@ -115,3 +134,9 @@ export default {
   },
 };
 </script>
+<style lang="scss" scoped>
+.g2-list-favorite {
+  float: right;
+  margin-left: 0.5rem;
+}
+</style>

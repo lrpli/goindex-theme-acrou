@@ -80,6 +80,12 @@ For more option, see APlayer [options](https://aplayer.js.org/#/home?id=options)
 
 ## Change log
 
+### v2.0.9
+
+- Add local library tools (filter, sort, favorites, recent)
+- Add configurable `themeOptions.library` in worker settings
+- Improve SPA list usability on mobile and search results
+
 ### v2.0.8
 
 - Fix image file actions does not work
@@ -140,4 +146,3 @@ For more option, see APlayer [options](https://aplayer.js.org/#/home?id=options)
 ## License
 
 [MIT](LICENSE)
-

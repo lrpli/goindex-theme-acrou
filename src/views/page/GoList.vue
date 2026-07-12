@@ -6,21 +6,112 @@
       style="margin:1rem 0;"
     ></headmd>
     <bread-crumb ref="breadcrumb"></bread-crumb>
+    <section
+      v-if="enableLibrary"
+      class="g2-library-toolbar"
+      :aria-label="$t('library.title')"
+    >
+      <div class="field is-grouped is-grouped-multiline">
+        <p class="control is-expanded">
+          <input
+            v-model.trim="filterQuery"
+            class="input"
+            type="search"
+            :placeholder="$t('library.filterPlaceholder')"
+            :aria-label="$t('library.filterPlaceholder')"
+          />
+        </p>
+        <p class="control">
+          <span class="select">
+            <select v-model="filterType" :aria-label="$t('library.type')">
+              <option value="all">{{ $t('library.types.all') }}</option>
+              <option value="folder">{{ $t('library.types.folder') }}</option>
+              <option value="image">{{ $t('library.types.image') }}</option>
+              <option value="video">{{ $t('library.types.video') }}</option>
+              <option value="audio">{{ $t('library.types.audio') }}</option>
+              <option value="document">{{ $t('library.types.document') }}</option>
+              <option value="archive">{{ $t('library.types.archive') }}</option>
+            </select>
+          </span>
+        </p>
+        <p class="control">
+          <span class="select">
+            <select v-model="sortBy" :aria-label="$t('library.sort')">
+              <option value="name-asc">{{ $t('library.sorts.nameAsc') }}</option>
+              <option value="name-desc">{{ $t('library.sorts.nameDesc') }}</option>
+              <option value="modified-desc">{{ $t('library.sorts.modifiedDesc') }}</option>
+              <option value="modified-asc">{{ $t('library.sorts.modifiedAsc') }}</option>
+              <option value="size-desc">{{ $t('library.sorts.sizeDesc') }}</option>
+              <option value="size-asc">{{ $t('library.sorts.sizeAsc') }}</option>
+            </select>
+          </span>
+        </p>
+        <p class="control">
+          <button
+            class="button"
+            :class="{ 'is-warning': favoritesOnly }"
+            type="button"
+            @click="favoritesOnly = !favoritesOnly"
+          >
+            <span class="icon"><i class="fa fa-star" aria-hidden="true"></i></span>
+            <span>{{ $t('library.favorites') }} ({{ favorites.length }})</span>
+          </button>
+        </p>
+        <p class="control">
+          <button class="button" type="button" @click="toggleLibraryMenu">
+            <span class="icon"><i class="fa fa-history" aria-hidden="true"></i></span>
+            <span>{{ $t('library.history') }}</span>
+          </button>
+        </p>
+      </div>
+      <div v-if="libraryMenuOpen" class="g2-library-menu">
+        <div class="g2-library-section" v-if="favorites.length">
+          <strong>{{ $t('library.favorites') }}</strong>
+          <button
+            v-for="file in favorites"
+            :key="'favorite-' + file.path"
+            class="button is-text g2-library-item"
+            type="button"
+            @click="openStoredFile(file)"
+          >
+            <i class="fa fa-star" aria-hidden="true"></i>{{ file.name }}
+          </button>
+        </div>
+        <div class="g2-library-section" v-if="recentFiles.length">
+          <strong>{{ $t('library.recent') }}</strong>
+          <button
+            v-for="file in recentFiles"
+            :key="'recent-' + file.path"
+            class="button is-text g2-library-item"
+            type="button"
+            @click="openStoredFile(file)"
+          >
+            <i class="fa fa-history" aria-hidden="true"></i>{{ file.name }}
+          </button>
+        </div>
+        <p v-if="!favorites.length && !recentFiles.length" class="has-text-grey">
+          {{ $t('library.empty') }}
+        </p>
+      </div>
+    </section>
     <div class="golist" v-loading="loading">
       <list-view
-        :data="files"
+        :data="visibleFiles"
         v-if="mode === 'list'"
         :icons="getIcon"
         :action="action"
-        :copy="copy"
+        :is-favorite="isFavorite"
+        :toggle-favorite="toggleFavorite"
       />
       <grid-view
         class="g2-content"
-        :data="files"
+        :data="visibleFiles"
         v-if="mode !== 'list'"
         :getIcon="getIcon"
         :action="action"
         :thum="thum"
+        :is-favorite="isFavorite"
+        :toggle-favorite="toggleFavorite"
       />
       <infinite-loading
         v-show="!loading"
@@ -32,14 +123,14 @@
         <div slot="no-results"></div>
       </infinite-loading>
       <div
-        v-show="files.length === 0"
+        v-show="files.length === 0 || visibleFiles.length === 0"
         class="has-text-centered no-content"
-      ></div>
+      >{{ files.length ? $t('library.noMatches') : '' }}</div>
     </div>
     <div
       class="is-divider"
       :data-content="
-        $t('list.total') + ' ' + files.length + ' ' + $t('list.item')
+        $t('list.total') + ' ' + visibleFiles.length + ' / ' + files.length + ' ' + $t('list.item')
       "
     ></div>
     <readmemd
@@ -81,6 +172,7 @@ import ListView from "./components/list";
 import GridView from "./components/grid";
 import Markdown from "../common/Markdown";
 import InfiniteLoading from "vue-infinite-loading";
+import { addRecent, getLibrary, toggleFavorite } from "@/libs/util.library";
 export default {
   name: "GoList",
   components: {
@@ -92,6 +184,9 @@ export default {
     InfiniteLoading,
   },
   data: function() {
+    const libraryOptions =
+      (window.themeOptions && window.themeOptions.library) || {};
+    const maxRecent = Number(libraryOptions.max_recent);
     return {
       infiniteId: +new Date(),
       loading: true,
@@ -100,6 +195,16 @@ export default {
         page_index: 0,
       },
       files: [],
+      filterQuery: "",
+      filterType: libraryOptions.default_filter || "all",
+      sortBy: libraryOptions.default_sort || "name-asc",
+      favoritesOnly: false,
+      favorites: [],
+      recentFiles: [],
+      libraryMenuOpen: !!libraryOptions.menu_default_open,
+      enableLibrary: libraryOptions.enable !== false,
+      maxRecent: maxRecent > 0 ? maxRecent : 12,
+      libraryStorageKey: libraryOptions.storage_key || "go2index-library",
       viewer: false,
       icon: {
         "application/vnd.google-apps.folder": "icon-folder",
@@ -147,7 +252,25 @@ export default {
   computed: {
     ...mapState("acrou/view", ["mode"]),
     images() {
-      return this.files.filter((file) => file.mimeType.startsWith("image/"));
+      return this.visibleFiles.filter((file) =>
+        file.mimeType.startsWith("image/")
+      );
+    },
+    visibleFiles() {
+      const query = this.filterQuery.toLocaleLowerCase();
+      return this.files
+        .filter((file) => {
+          const name = (file.name || "").toLocaleLowerCase();
+          return !query || name.includes(query);
+        })
+        .filter(
+          (file) =>
+            this.filterType === "all" ||
+            this.getFileType(file) === this.filterType
+        )
+        .filter((file) => !this.favoritesOnly || this.isFavorite(file))
+        .slice()
+        .sort(this.compareFiles);
     },
     renderHeadMD() {
       return window.themeOptions.render.head_md || false;
@@ -157,6 +280,9 @@ export default {
     },
   },
   created() {
+    if (this.enableLibrary) {
+      this.loadLibrary();
+    }
     this.render();
   },
   methods: {
@@ -231,15 +357,11 @@ export default {
                 path: p,
                 ...item,
                 modifiedTime: formatDate(item.modifiedTime),
+                modifiedTimestamp: new Date(item.modifiedTime).getTime() || 0,
                 size: size,
+                sizeValue: Number(item.size) || 0,
                 isFolder: isFolder,
               };
-            })
-            .sort((a, b) => {
-              if (a.isFolder && b.isFolder) {
-                return 0;
-              }
-              return a.isFolder ? -1 : 1;
             });
     },
     checkPassword(path) {
@@ -277,6 +399,10 @@ export default {
       if (cmd && cmd === "search" && isSearch) {
         this.goSearchResult(file, target);
         return;
+      }
+
+      if (target !== "copy" && this.enableLibrary) {
+        this.trackRecent(file);
       }
 
       if (file.mimeType.startsWith("image/") && target === "view") {
@@ -365,15 +491,11 @@ export default {
     },
     goSearchResult(file, target) {
       this.loading = true;
-      let id = this.$route.params.id;
-      this.axios
-        .post(`/${id}:id2path`, { id: file.id })
-        .then((res) => {
+      this.resolveSearchResult(file)
+        .then((resolvedFile) => {
           this.loading = false;
-          let data = res.data;
-          if (data) {
-            file.path = `/${id}:${data}`;
-            this.action(file, target, false);
+          if (resolvedFile) {
+            this.action(resolvedFile, target, false);
           }
         })
         .catch((e) => {
@@ -381,9 +503,135 @@ export default {
           console.log(e);
         });
     },
+    resolveSearchResult(file) {
+      const driveId = this.$route.params.id;
+      return this.axios
+        .post(`/${driveId}:id2path`, { id: file.id })
+        .then((res) => {
+          if (!res.data) return null;
+          return {
+            ...file,
+            path: `/${driveId}:${res.data}`,
+          };
+        });
+    },
     getIcon(type) {
       return "#" + (this.icon[type] ? this.icon[type] : "icon-file");
+    },
+    getFileType(file) {
+      const mimeType = file.mimeType || "";
+      const name = (file.name || "").toLocaleLowerCase();
+      if (file.isFolder) return "folder";
+      if (mimeType.startsWith("image/")) return "image";
+      if (mimeType.startsWith("video/")) return "video";
+      if (mimeType.startsWith("audio/")) return "audio";
+      if (
+        /zip|rar|7z|tar|gzip/.test(mimeType) ||
+        /\.(zip|rar|7z|tar|gz)$/i.test(name)
+      )
+        return "archive";
+      return "document";
+    },
+    compareFiles(first, second) {
+      if (first.isFolder !== second.isFolder) return first.isFolder ? -1 : 1;
+      const [field, direction] = this.sortBy.split("-");
+      let result = 0;
+      if (field === "name") result = first.name.localeCompare(second.name);
+      if (field === "modified")
+        result = first.modifiedTimestamp - second.modifiedTimestamp;
+      if (field === "size") result = first.sizeValue - second.sizeValue;
+      return direction === "desc" ? -result : result;
+    },
+    loadLibrary() {
+      const library = getLibrary(this.libraryStorageKey);
+      this.favorites = library.favorites;
+      this.recentFiles = library.recent;
+    },
+    isFavorite(file) {
+      return this.favorites.some(
+        (favorite) =>
+          favorite.path === file.path ||
+          (file.id && favorite.id && favorite.id === file.id)
+      );
+    },
+    toggleFavorite(file) {
+      if (!this.enableLibrary) {
+        return;
+      }
+      if (this.$route.params.cmd === "search") {
+        this.loading = true;
+        this.resolveSearchResult(file)
+          .then((resolvedFile) => {
+            this.loading = false;
+            if (resolvedFile) {
+              this.favorites = toggleFavorite(
+                resolvedFile,
+                this.libraryStorageKey
+              );
+            }
+          })
+          .catch((error) => {
+            this.loading = false;
+            console.log(error);
+          });
+        return;
+      }
+      this.favorites = toggleFavorite(file, this.libraryStorageKey);
+    },
+    trackRecent(file) {
+      this.recentFiles = addRecent(
+        file,
+        this.maxRecent,
+        this.libraryStorageKey
+      );
+    },
+    toggleLibraryMenu() {
+      this.libraryMenuOpen = !this.libraryMenuOpen;
+    },
+    openStoredFile(file) {
+      this.libraryMenuOpen = false;
+      const target = file.isFolder
+        ? ""
+        : file.mimeType.startsWith("image/")
+        ? "_blank"
+        : "view";
+      this.action(file, target, false);
     },
   },
 };
 </script>
+<style lang="scss" scoped>
+.g2-library-toolbar {
+  margin: 1rem 0;
+}
+.g2-library-toolbar .field {
+  margin-bottom: 0.5rem;
+}
+.g2-library-menu {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1rem;
+  background: #fff;
+  border-radius: 0.5rem;
+  box-shadow: 0 2px 8px rgba(10, 10, 10, 0.12);
+}
+.g2-library-section {
+  display: flex;
+  flex: 1 1 15rem;
+  flex-direction: column;
+  min-width: 0;
+}
+.g2-library-item {
+  justify-content: flex-start;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.g2-library-item .fa {
+  width: 1.5rem;
+  color: #ffdd57;
+}
+</style>

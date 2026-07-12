@@ -8,6 +8,19 @@
         @click="action(file)"
       >
         <div class="card g2-grid-view-card g2-grid-view-folder">
+          <button
+            class="g2-favorite-button"
+            type="button"
+            :title="$t('library.toggleFavorite')"
+            :aria-label="$t('library.toggleFavorite')"
+            @click.stop="toggleFavorite(file)"
+          >
+            <i
+              class="fa"
+              :class="isFavorite(file) ? 'fa-star has-text-warning' : 'fa-star-o'"
+              aria-hidden="true"
+            ></i>
+          </button>
           <div class="media">
             <div class="content" :title="file.name">
               <svg class="iconfont" aria-hidden="true">
@@ -27,6 +40,19 @@
         @click="action(file, 'view')"
       >
         <div class="card g2-grid-view-card">
+          <button
+            class="g2-favorite-button"
+            type="button"
+            :title="$t('library.toggleFavorite')"
+            :aria-label="$t('library.toggleFavorite')"
+            @click.stop="toggleFavorite(file)"
+          >
+            <i
+              class="fa"
+              :class="isFavorite(file) ? 'fa-star has-text-warning' : 'fa-star-o'"
+              aria-hidden="true"
+            ></i>
+          </button>
           <div
             :class="
               'card-image' +
@@ -78,6 +104,12 @@ export default {
     thum: {
       type: Function,
     },
+    isFavorite: {
+      type: Function,
+    },
+    toggleFavorite: {
+      type: Function,
+    },
   },
   data: function() {
     return {};
@@ -111,6 +143,7 @@ export default {
   cursor: pointer;
 }
 .g2-grid-view-card {
+  position: relative;
   //   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05), 0 0 1px rgba(0, 0, 0, 0.1);
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2), 0 0 1px rgba(0, 0, 0, 0.05);
   border-radius: 0.5rem;
@@ -136,6 +169,20 @@ export default {
       padding: 8px;
     }
   }
+}
+.g2-favorite-button {
+  position: absolute;
+  z-index: 11;
+  top: 0.45rem;
+  right: 0.45rem;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  color: #fff;
+  background: rgba(0, 0, 0, 0.45);
+  border: 0;
+  border-radius: 50%;
+  cursor: pointer;
 }
 .g2-grid-view-folder {
   padding: 10px;
