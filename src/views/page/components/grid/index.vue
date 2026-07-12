@@ -5,7 +5,7 @@
         class="column is-one-quarter"
         v-for="(file, index) in folders"
         :key="'folder_' + index"
-        @click="action(file)"
+        @click="action(file, '')"
       >
         <div class="card g2-grid-view-card g2-grid-view-folder">
           <button
@@ -28,6 +28,40 @@
               </svg>
               {{ file.name }}
             </div>
+          </div>
+          <div class="g2-grid-actions">
+            <button
+              class="button is-white is-small"
+              type="button"
+              :title="$t('list.opt.copy')"
+              @click.stop="action(file, 'copy')"
+            >
+              <i class="fa fa-copy" aria-hidden="true"></i>
+            </button>
+            <button
+              class="button is-white is-small"
+              type="button"
+              :title="$t('list.opt.rename')"
+              @click.stop="action(file, 'rename')"
+            >
+              <i class="fa fa-pencil" aria-hidden="true"></i>
+            </button>
+            <button
+              class="button is-white is-small"
+              type="button"
+              :title="$t('list.opt.move')"
+              @click.stop="action(file, 'move')"
+            >
+              <i class="fa fa-arrows" aria-hidden="true"></i>
+            </button>
+            <button
+              class="button is-white is-small"
+              type="button"
+              :title="$t('list.opt.delete')"
+              @click.stop="action(file, 'delete')"
+            >
+              <i class="fa fa-trash" aria-hidden="true"></i>
+            </button>
           </div>
         </div>
       </div>
@@ -80,6 +114,56 @@
               </svg>
               {{ file.name }}
             </div>
+          </div>
+          <div class="g2-grid-actions">
+            <button
+              class="button is-white is-small"
+              type="button"
+              :title="$t('list.opt.copy')"
+              @click.stop="action(file, 'copy')"
+            >
+              <i class="fa fa-copy" aria-hidden="true"></i>
+            </button>
+            <button
+              class="button is-white is-small"
+              type="button"
+              :title="$t('list.opt.newTab')"
+              @click.stop="action(file, '_blank')"
+            >
+              <i class="fa fa-external-link" aria-hidden="true"></i>
+            </button>
+            <button
+              class="button is-white is-small"
+              type="button"
+              :title="$t('list.opt.download')"
+              @click.stop="action(file, 'down')"
+            >
+              <i class="fa fa-download" aria-hidden="true"></i>
+            </button>
+            <button
+              class="button is-white is-small"
+              type="button"
+              :title="$t('list.opt.rename')"
+              @click.stop="action(file, 'rename')"
+            >
+              <i class="fa fa-pencil" aria-hidden="true"></i>
+            </button>
+            <button
+              class="button is-white is-small"
+              type="button"
+              :title="$t('list.opt.move')"
+              @click.stop="action(file, 'move')"
+            >
+              <i class="fa fa-arrows" aria-hidden="true"></i>
+            </button>
+            <button
+              class="button is-white is-small"
+              type="button"
+              :title="$t('list.opt.delete')"
+              @click.stop="action(file, 'delete')"
+            >
+              <i class="fa fa-trash" aria-hidden="true"></i>
+            </button>
           </div>
         </div>
       </div>
@@ -186,6 +270,16 @@ export default {
 }
 .g2-grid-view-folder {
   padding: 10px;
+}
+.g2-grid-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  padding: 0 0.5rem 0.5rem;
+}
+.g2-grid-actions .button {
+  min-width: 2rem;
+  padding: 0.2rem 0.4rem;
 }
 .g2-grid-view-play {
   &:before {

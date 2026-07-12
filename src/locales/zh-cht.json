@@ -27,7 +27,24 @@
     "opt": {
       "copy": "復制鏈接",
       "newTab": "打開新的標簽頁",
-      "download": "下載"
+      "download": "下載",
+      "rename": "重新命名",
+      "move": "移動",
+      "delete": "刪除"
+    },
+    "action": {
+      "createFolder": "新增資料夾",
+      "refresh": "重新整理",
+      "createFolderPrompt": "輸入新資料夾名稱",
+      "renamePrompt": "輸入新的名稱",
+      "movePrompt": "輸入目標目錄路徑（例如 /Movies/）",
+      "deleteConfirm": "確認刪除「{name}」？",
+      "createFolderSuccess": "新增資料夾成功",
+      "renameSuccess": "重新命名成功",
+      "moveSuccess": "移動成功",
+      "deleteSuccess": "刪除成功",
+      "invalidTargetPath": "目標目錄路徑無效",
+      "operationFailed": "操作失敗"
     },
     "total": "共",
     "item": "項"

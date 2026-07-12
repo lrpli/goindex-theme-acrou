@@ -246,6 +246,7 @@ async function handleRequest(request) {
   const command_reg = /^\/(?<num>\d+):(?<command>[a-zA-Z0-9]+)(\/.*)?$/g;
   const match = command_reg.exec(path);
   let command;
+  const writeCommands = ["mkdir", "rename", "move", "delete", "remove"];
   if (match) {
     const num = match.groups.num;
     const order = Number(num);
@@ -280,6 +281,8 @@ async function handleRequest(request) {
       }
     } else if (command === "id2path" && request.method === "POST") {
       return handleId2Path(request, gd);
+    } else if (writeCommands.indexOf(command) > -1 && request.method === "POST") {
+      return handleFileOperation(request, gd, command);
     } else if (command === "view") {
       const params = url.searchParams;
       return gd.view(params.get("url"), request.headers.get("Range"));
@@ -414,6 +417,159 @@ async function handleId2Path(request, gd) {
   body = JSON.parse(body);
   let path = await gd.findPathById(body.id);
   return new Response(path || "", option);
+}
+
+function jsonResponse(body, status = 200) {
+  return new Response(JSON.stringify(body), {
+    status: status,
+    headers: {
+      "Access-Control-Allow-Origin": "*",
+      "Content-Type": "application/json; charset=utf-8",
+    },
+  });
+}
+
+function normalizeFolderPath(path = "/") {
+  let normalized = path || "/";
+  if (normalized[0] !== "/") normalized = "/" + normalized;
+  if (normalized[normalized.length - 1] !== "/") normalized += "/";
+  return normalized;
+}
+
+async function parseJsonBody(request) {
+  const raw = await request.text();
+  if (!raw) return {};
+  try {
+    return JSON.parse(raw);
+  } catch (e) {
+    let error = new Error("invalid json body");
+    error.status = 400;
+    throw error;
+  }
+}
+
+async function handleFileOperation(request, gd, command) {
+  try {
+    const body = await parseJsonBody(request);
+    let result = null;
+
+    if (command === "mkdir") {
+      let folderName = (body.name || "").trim();
+      let parentPath = body.parent_path || "/";
+      if (!folderName && body.path) {
+        const normalized = normalizeFolderPath(body.path).replace(/\/$/, "");
+        const idx = normalized.lastIndexOf("/");
+        folderName = normalized.substring(idx + 1).trim();
+        parentPath = normalized.substring(0, idx + 1) || "/";
+      }
+      if (!folderName) {
+        return jsonResponse({ ok: false, error: { message: "name is required" } }, 400);
+      }
+      if (folderName.indexOf("/") > -1) {
+        return jsonResponse(
+          { ok: false, error: { message: "name cannot contain '/'" } },
+          400
+        );
+      }
+      const parentId = await gd.resolveFolderId(
+        body.parent_id,
+        normalizeFolderPath(parentPath)
+      );
+      if (!parentId) {
+        return jsonResponse(
+          { ok: false, error: { message: "parent folder not found" } },
+          404
+        );
+      }
+      result = await gd.createFolder(folderName, parentId);
+    } else if (command === "rename") {
+      const fileId = await gd.resolveItemId(body.id, body.path);
+      const newName = (body.new_name || body.name || "").trim();
+      if (!fileId) {
+        return jsonResponse(
+          { ok: false, error: { message: "id or path is required" } },
+          400
+        );
+      }
+      if (!newName) {
+        return jsonResponse(
+          { ok: false, error: { message: "new_name is required" } },
+          400
+        );
+      }
+      if (gd.isRootId(fileId)) {
+        return jsonResponse(
+          { ok: false, error: { message: "cannot rename root folder" } },
+          403
+        );
+      }
+      result = await gd.renameById(fileId, newName);
+    } else if (command === "move") {
+      const fileId = await gd.resolveItemId(body.id, body.path);
+      const targetParentId = await gd.resolveFolderId(
+        body.target_parent_id || body.parent_id,
+        body.target_path || body.parent_path
+      );
+      if (!fileId) {
+        return jsonResponse(
+          { ok: false, error: { message: "id or path is required" } },
+          400
+        );
+      }
+      if (!targetParentId) {
+        return jsonResponse(
+          {
+            ok: false,
+            error: {
+              message:
+                "target_parent_id or target_path(parent_path) is required",
+            },
+          },
+          400
+        );
+      }
+      if (gd.isRootId(fileId)) {
+        return jsonResponse(
+          { ok: false, error: { message: "cannot move root folder" } },
+          403
+        );
+      }
+      result = await gd.moveById(fileId, targetParentId);
+    } else if (command === "delete" || command === "remove") {
+      const fileId = await gd.resolveItemId(body.id, body.path);
+      if (!fileId) {
+        return jsonResponse(
+          { ok: false, error: { message: "id or path is required" } },
+          400
+        );
+      }
+      if (gd.isRootId(fileId)) {
+        return jsonResponse(
+          { ok: false, error: { message: "cannot delete root folder" } },
+          403
+        );
+      }
+      result = await gd.deleteById(fileId, body.permanent === true);
+    } else {
+      return jsonResponse(
+        { ok: false, error: { message: "unsupported command" } },
+        400
+      );
+    }
+
+    return jsonResponse({ ok: true, data: result }, 200);
+  } catch (error) {
+    return jsonResponse(
+      {
+        ok: false,
+        error: {
+          message: error && error.message ? error.message : "operation failed",
+          status: error && error.status ? error.status : 500,
+        },
+      },
+      error && error.status ? error.status : 500
+    );
+  }
 }
 
 class googleDrive {
@@ -888,6 +1044,146 @@ class googleDrive {
       return null;
     }
     return obj.files[0].id;
+  }
+
+  clearCache() {
+    this.files = [];
+    this.passwords = [];
+    this.path_children_cache = {};
+    this.id_path_cache = {};
+    this.id_path_cache[this.root["id"]] = "/";
+    this.paths = [];
+    this.paths["/"] = this.root["id"];
+  }
+
+  async driveRequest(url, method = "GET", body = null) {
+    let headers = {};
+    if (body !== null) {
+      headers["Content-Type"] = "application/json";
+    }
+    let requestOption = await this.requestOption(headers, method);
+    if (body !== null) {
+      requestOption.body = JSON.stringify(body);
+    }
+    const response = await fetch(url, requestOption);
+    const text = await response.text();
+    let data = {};
+    if (text) {
+      try {
+        data = JSON.parse(text);
+      } catch (e) {
+        data = { raw: text };
+      }
+    }
+
+    if (!response.ok) {
+      const message =
+        (data.error && data.error.message) ||
+        `Google Drive API request failed: ${response.status}`;
+      let error = new Error(message);
+      error.status = response.status;
+      error.data = data;
+      throw error;
+    }
+    return data;
+  }
+
+  async resolveItemId(id, path) {
+    if (id) return id;
+    if (!path) return null;
+
+    if (path[path.length - 1] === "/") {
+      return await this.findPathId(normalizeFolderPath(path));
+    }
+    const file = await this.file(path);
+    return file ? file.id : null;
+  }
+
+  async resolveFolderId(parentId, parentPath) {
+    if (parentId) return parentId;
+    const path = normalizeFolderPath(parentPath || "/");
+    return await this.findPathId(path);
+  }
+
+  isRootId(id) {
+    if (!id) return false;
+    if (id === this.root.id) return true;
+    return id === authConfig.user_drive_real_root_id;
+  }
+
+  async createFolder(name, parentId) {
+    const url = `https://www.googleapis.com/drive/v3/files?${this.enQuery({
+      supportsAllDrives: true,
+      fields: "id,name,mimeType,parents,modifiedTime",
+    })}`;
+    const payload = {
+      name: name,
+      mimeType: CONSTS.folder_mime_type,
+      parents: [parentId],
+    };
+    const result = await this.driveRequest(url, "POST", payload);
+    this.clearCache();
+    return result;
+  }
+
+  async renameById(fileId, newName) {
+    const url = `https://www.googleapis.com/drive/v3/files/${fileId}?${this.enQuery(
+      {
+        supportsAllDrives: true,
+        fields: "id,name,mimeType,parents,modifiedTime",
+      }
+    )}`;
+    const result = await this.driveRequest(url, "PATCH", { name: newName });
+    this.clearCache();
+    return result;
+  }
+
+  async moveById(fileId, targetParentId) {
+    const source = await this.findItemById(fileId);
+    if (!source || !source.id) {
+      throw new Error("source file not found");
+    }
+    if (source.id === targetParentId) {
+      throw new Error("cannot move a folder into itself");
+    }
+
+    const oldParents = (source.parents || []).filter(Boolean).join(",");
+    let params = {
+      supportsAllDrives: true,
+      addParents: targetParentId,
+      fields: "id,name,mimeType,parents,modifiedTime",
+    };
+    if (oldParents) {
+      params.removeParents = oldParents;
+    }
+    const url = `https://www.googleapis.com/drive/v3/files/${fileId}?${this.enQuery(
+      params
+    )}`;
+    const result = await this.driveRequest(url, "PATCH", {});
+    this.clearCache();
+    return result;
+  }
+
+  async deleteById(fileId, permanent = false) {
+    if (permanent) {
+      const deleteUrl = `https://www.googleapis.com/drive/v3/files/${fileId}?${this.enQuery(
+        {
+          supportsAllDrives: true,
+        }
+      )}`;
+      await this.driveRequest(deleteUrl, "DELETE");
+      this.clearCache();
+      return { id: fileId, deleted: true, permanent: true };
+    }
+    const trashUrl = `https://www.googleapis.com/drive/v3/files/${fileId}?${this.enQuery(
+      {
+        supportsAllDrives: true,
+        fields: "id,name,mimeType,parents,trashed,modifiedTime",
+      }
+    )}`;
+    const result = await this.driveRequest(trashUrl, "PATCH", { trashed: true });
+    this.clearCache();
+    return result;
   }
 
   async accessToken() {

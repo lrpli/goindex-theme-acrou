@@ -82,6 +82,27 @@
               :title="$t('list.opt.download')"
             ></i>
           </span>
+          <span class="icon" @click.stop="action(file, 'rename')">
+            <i
+              class="fa fa-pencil faa-shake animated-hover"
+              aria-hidden="true"
+              :title="$t('list.opt.rename')"
+            ></i>
+          </span>
+          <span class="icon" @click.stop="action(file, 'move')">
+            <i
+              class="fa fa-arrows faa-shake animated-hover"
+              aria-hidden="true"
+              :title="$t('list.opt.move')"
+            ></i>
+          </span>
+          <span class="icon" @click.stop="action(file, 'delete')">
+            <i
+              class="fa fa-trash faa-shake animated-hover"
+              aria-hidden="true"
+              :title="$t('list.opt.delete')"
+            ></i>
+          </span>
         </td>
       </tr>
     </tbody>
@@ -123,7 +144,7 @@ export default {
         },
         {
           name: this.$t("list.title.operation"),
-          style: "width:13.5%",
+          style: "width:20%",
           class: "is-hidden-mobile is-hidden-touch",
         },
       ];

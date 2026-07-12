@@ -6,6 +6,16 @@
       style="margin:1rem 0;"
     ></headmd>
     <bread-crumb ref="breadcrumb"></bread-crumb>
+    <section v-if="!isSearchPage" class="g2-action-toolbar">
+      <button class="button is-small" type="button" @click="createFolder">
+        <span class="icon"><i class="fa fa-folder-o" aria-hidden="true"></i></span>
+        <span>{{ $t("list.action.createFolder") }}</span>
+      </button>
+      <button class="button is-small" type="button" @click="reloadList">
+        <span class="icon"><i class="fa fa-refresh" aria-hidden="true"></i></span>
+        <span>{{ $t("list.action.refresh") }}</span>
+      </button>
+    </section>
     <section
       v-if="enableLibrary"
       class="g2-library-toolbar"
@@ -278,6 +288,9 @@ export default {
     renderReadMeMD() {
       return window.themeOptions.render.readme_md || false;
     },
+    isSearchPage() {
+      return this.$route.params.cmd === "search";
+    },
   },
   created() {
     if (this.enableLibrary) {
@@ -307,7 +320,7 @@ export default {
         password: password || null,
         ...this.page,
       };
-      this.axios
+      return this.axios
         .post(path, p)
         .then((res) => {
           var body = res.data;
@@ -332,10 +345,12 @@ export default {
               this.renderMd(data.files, path);
             }
           }
-          if (body.nextPageToken) {
-            this.$refs.infinite.stateChanger.loaded();
-          } else {
-            this.$refs.infinite.stateChanger.complete();
+          if (this.$refs.infinite && this.$refs.infinite.stateChanger) {
+            if (body.nextPageToken) {
+              this.$refs.infinite.stateChanger.loaded();
+            } else {
+              this.$refs.infinite.stateChanger.complete();
+            }
           }
           this.loading = false;
         })
@@ -385,8 +400,15 @@ export default {
       this.$viewer = viewer;
     },
     action(file, target, isSearch = true) {
-      // If it is a shortcut, the prompt cannot be downloaded
-      if (file.mimeType === "application/vnd.google-apps.shortcut") {
+      const actionTarget = target || "";
+      // Shortcut cannot be opened or downloaded directly
+      const isShortcut = file.mimeType === "application/vnd.google-apps.shortcut";
+      if (
+        isShortcut &&
+        (actionTarget === "down" ||
+          actionTarget === "view" ||
+          actionTarget === "_blank")
+      ) {
         this.$notify({
           title: "notify.title",
           message: "error.shortcut_not_down",
@@ -397,15 +419,17 @@ export default {
 
       let cmd = this.$route.params.cmd;
       if (cmd && cmd === "search" && isSearch) {
-        this.goSearchResult(file, target);
+        this.goSearchResult(file, actionTarget);
         return;
       }
 
-      if (target !== "copy" && this.enableLibrary) {
+      const canTrackRecent =
+        ["", "view", "down", "_blank"].indexOf(actionTarget) > -1;
+      if (canTrackRecent && this.enableLibrary) {
         this.trackRecent(file);
       }
 
-      if (file.mimeType.startsWith("image/") && target === "view") {
+      if (file.mimeType.startsWith("image/") && actionTarget === "view") {
         this.viewer = true;
         this.$nextTick(() => {
           let index = this.images.findIndex((item) => item.path === file.path);
@@ -416,7 +440,7 @@ export default {
       if (
         file.mimeType.startsWith("audio/") &&
         file.mimeType.indexOf("mpegurl") == -1 &&
-        target === "view"
+        actionTarget === "view"
       ) {
         if (window.aplayer) {
           this.add({
@@ -431,10 +455,22 @@ export default {
         }
         return;
       }
-      this.target(file, target);
+      this.target(file, actionTarget);
     },
     target(file, target) {
       let path = file.path;
+      if (target === "rename") {
+        this.renameItem(file);
+        return;
+      }
+      if (target === "move") {
+        this.moveItem(file);
+        return;
+      }
+      if (target === "delete") {
+        this.deleteItem(file);
+        return;
+      }
       if (target === "_blank") {
         window.open(path);
         return;
@@ -464,6 +500,129 @@ export default {
         });
         return;
       }
+    },
+    getDriveCommandPath(command) {
+      return `/${this.$route.params.id}:${command}`;
+    },
+    toRelativePath(path) {
+      return (path || "/").replace(/^\/\d+:/, "") || "/";
+    },
+    normalizeFolderPath(path = "/") {
+      let normalized = path || "/";
+      if (normalized[0] !== "/") normalized = "/" + normalized;
+      if (normalized[normalized.length - 1] !== "/") normalized += "/";
+      return normalized;
+    },
+    getCurrentFolderPath() {
+      return this.normalizeFolderPath(this.toRelativePath(this.$route.path));
+    },
+    normalizeTargetFolderInput(input) {
+      const trimmed = (input || "").trim();
+      if (!trimmed) return null;
+      if (trimmed === ".") return this.getCurrentFolderPath();
+      if (trimmed === "..") {
+        const current = this.getCurrentFolderPath().replace(/\/$/, "");
+        const index = current.lastIndexOf("/");
+        return this.normalizeFolderPath(current.slice(0, index + 1) || "/");
+      }
+      if (trimmed.startsWith("/")) {
+        return this.normalizeFolderPath(trimmed);
+      }
+      return this.normalizeFolderPath(this.getCurrentFolderPath() + trimmed);
+    },
+    async runFileCommand(command, payload, successMessage) {
+      this.loading = true;
+      try {
+        await this.axios.post(this.getDriveCommandPath(command), payload);
+        this.$notify({
+          title: "notify.title",
+          message: successMessage,
+          type: "success",
+        });
+        await this.reloadList();
+      } catch (error) {
+        this.loading = false;
+        console.log(error);
+        this.$notify({
+          title: "notify.title",
+          message: "list.action.operationFailed",
+          type: "error",
+        });
+      }
+    },
+    async reloadList() {
+      this.page = {
+        page_token: null,
+        page_index: 0,
+      };
+      this.files = [];
+      this.loading = true;
+      await this.render();
+    },
+    createFolder() {
+      const folderName = prompt(this.$t("list.action.createFolderPrompt"), "");
+      if (folderName == null) return;
+      const name = folderName.trim();
+      if (!name) return;
+      this.runFileCommand(
+        "mkdir",
+        {
+          name: name,
+          parent_path: this.getCurrentFolderPath(),
+        },
+        "list.action.createFolderSuccess"
+      );
+    },
+    renameItem(file) {
+      const value = prompt(this.$t("list.action.renamePrompt"), file.name);
+      if (value == null) return;
+      const newName = value.trim();
+      if (!newName || newName === file.name) return;
+      this.runFileCommand(
+        "rename",
+        {
+          id: file.id,
+          new_name: newName,
+        },
+        "list.action.renameSuccess"
+      );
+    },
+    moveItem(file) {
+      const targetInput = prompt(
+        this.$t("list.action.movePrompt"),
+        this.getCurrentFolderPath()
+      );
+      if (targetInput == null) return;
+      const targetPath = this.normalizeTargetFolderInput(targetInput);
+      if (!targetPath) {
+        this.$notify({
+          title: "notify.title",
+          message: "list.action.invalidTargetPath",
+          type: "warning",
+        });
+        return;
+      }
+      this.runFileCommand(
+        "move",
+        {
+          id: file.id,
+          target_path: targetPath,
+        },
+        "list.action.moveSuccess"
+      );
+    },
+    deleteItem(file) {
+      const confirmed = window.confirm(
+        this.$t("list.action.deleteConfirm", { name: file.name })
+      );
+      if (!confirmed) return;
+      this.runFileCommand(
+        "delete",
+        {
+          id: file.id,
+        },
+        "list.action.deleteSuccess"
+      );
     },
     renderMd(files, path) {
       var cmd = this.$route.params.cmd;
@@ -603,6 +762,11 @@ export default {
 <style lang="scss" scoped>
 .g2-library-toolbar {
   margin: 1rem 0;
+}
+.g2-action-toolbar {
+  display: flex;
+  gap: 0.5rem;
+  margin: 1rem 0 0.5rem;
 }
 .g2-library-toolbar .field {
   margin-bottom: 0.5rem;

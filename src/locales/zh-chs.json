@@ -27,7 +27,24 @@
     "opt": {
       "copy": "复制链接",
       "newTab": "打开新的标签页",
-      "download": "下载"
+      "download": "下载",
+      "rename": "重命名",
+      "move": "移动",
+      "delete": "删除"
+    },
+    "action": {
+      "createFolder": "新建文件夹",
+      "refresh": "刷新",
+      "createFolderPrompt": "输入新文件夹名称",
+      "renamePrompt": "输入新的名称",
+      "movePrompt": "输入目标目录路径（例如 /Movies/）",
+      "deleteConfirm": "确认删除“{name}”？",
+      "createFolderSuccess": "创建文件夹成功",
+      "renameSuccess": "重命名成功",
+      "moveSuccess": "移动成功",
+      "deleteSuccess": "删除成功",
+      "invalidTargetPath": "目标目录路径无效",
+      "operationFailed": "操作失败"
     },
     "total": "共",
     "item": "项"

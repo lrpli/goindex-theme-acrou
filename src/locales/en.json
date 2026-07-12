@@ -27,7 +27,24 @@
     "opt": {
       "copy": "Copy link",
       "newTab": "Open a new tab",
-      "download": "Download"
+      "download": "Download",
+      "rename": "Rename",
+      "move": "Move",
+      "delete": "Delete"
+    },
+    "action": {
+      "createFolder": "New folder",
+      "refresh": "Refresh",
+      "createFolderPrompt": "Enter new folder name",
+      "renamePrompt": "Enter new name",
+      "movePrompt": "Enter target folder path (e.g. /Movies/)",
+      "deleteConfirm": "Delete \"{name}\"?",
+      "createFolderSuccess": "Folder created",
+      "renameSuccess": "Rename successful",
+      "moveSuccess": "Move successful",
+      "deleteSuccess": "Delete successful",
+      "invalidTargetPath": "Invalid target folder path",
+      "operationFailed": "Operation failed"
     },
     "total": "Total",
     "item": "item"
