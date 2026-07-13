@@ -380,13 +380,18 @@ export default {
             });
     },
     checkPassword(path) {
-      var pass = prompt(this.$t("list.auth"), "");
-      localStorage.setItem("password" + path, pass);
-      if (pass != null && pass != "") {
-        this.render(path);
-      } else {
-        this.$router.go(-1);
-      }
+      this.$prompt(this.$t("list.auth"), this.$t("notify.title"), {
+        confirmButtonText: this.$t("common.confirm"),
+        cancelButtonText: this.$t("common.cancel"),
+        inputType: "password",
+      })
+        .then(({ value }) => {
+          localStorage.setItem("password" + path, value);
+          this.render();
+        })
+        .catch(() => {
+          this.$router.go(-1);
+        });
     },
     copy(path) {
       let origin = window.location.origin;
@@ -560,69 +565,105 @@ export default {
       await this.render();
     },
     createFolder() {
-      const folderName = prompt(this.$t("list.action.createFolderPrompt"), "");
-      if (folderName == null) return;
-      const name = folderName.trim();
-      if (!name) return;
-      this.runFileCommand(
-        "mkdir",
+      this.$prompt(
+        this.$t("list.action.createFolderPrompt"),
+        this.$t("list.action.createFolder"),
         {
-          name: name,
-          parent_path: this.getCurrentFolderPath(),
-        },
-        "list.action.createFolderSuccess"
-      );
+          confirmButtonText: this.$t("common.confirm"),
+          cancelButtonText: this.$t("common.cancel"),
+          inputValidator: (value) => !!(value && value.trim()),
+          inputErrorMessage: this.$t("list.action.nameRequired"),
+        }
+      )
+        .then(({ value }) => {
+          this.runFileCommand(
+            "mkdir",
+            {
+              name: value.trim(),
+              parent_path: this.getCurrentFolderPath(),
+            },
+            "list.action.createFolderSuccess"
+          );
+        })
+        .catch(() => {});
     },
     renameItem(file) {
-      const value = prompt(this.$t("list.action.renamePrompt"), file.name);
-      if (value == null) return;
-      const newName = value.trim();
-      if (!newName || newName === file.name) return;
-      this.runFileCommand(
-        "rename",
+      this.$prompt(
+        this.$t("list.action.renamePrompt"),
+        this.$t("list.opt.rename"),
         {
-          id: file.id,
-          new_name: newName,
-        },
-        "list.action.renameSuccess"
-      );
+          confirmButtonText: this.$t("common.confirm"),
+          cancelButtonText: this.$t("common.cancel"),
+          inputValue: file.name,
+          inputValidator: (value) => !!(value && value.trim()),
+          inputErrorMessage: this.$t("list.action.nameRequired"),
+        }
+      )
+        .then(({ value }) => {
+          const newName = value.trim();
+          if (newName === file.name) return;
+          this.runFileCommand(
+            "rename",
+            {
+              id: file.id,
+              new_name: newName,
+            },
+            "list.action.renameSuccess"
+          );
+        })
+        .catch(() => {});
     },
     moveItem(file) {
-      const targetInput = prompt(
+      this.$prompt(
         this.$t("list.action.movePrompt"),
-        this.getCurrentFolderPath()
-      );
-      if (targetInput == null) return;
-      const targetPath = this.normalizeTargetFolderInput(targetInput);
-      if (!targetPath) {
-        this.$notify({
-          title: "notify.title",
-          message: "list.action.invalidTargetPath",
-          type: "warning",
-        });
-        return;
-      }
-      this.runFileCommand(
-        "move",
+        this.$t("list.opt.move"),
         {
-          id: file.id,
-          target_path: targetPath,
-        },
-        "list.action.moveSuccess"
-      );
+          confirmButtonText: this.$t("common.confirm"),
+          cancelButtonText: this.$t("common.cancel"),
+          inputValue: this.getCurrentFolderPath(),
+        }
+      )
+        .then(({ value }) => {
+          const targetPath = this.normalizeTargetFolderInput(value);
+          if (!targetPath) {
+            this.$notify({
+              title: "notify.title",
+              message: "list.action.invalidTargetPath",
+              type: "warning",
+            });
+            return;
+          }
+          this.runFileCommand(
+            "move",
+            {
+              id: file.id,
+              target_path: targetPath,
+            },
+            "list.action.moveSuccess"
+          );
+        })
+        .catch(() => {});
     },
     deleteItem(file) {
-      const confirmed = window.confirm(
-        this.$t("list.action.deleteConfirm", { name: file.name })
-      );
-      if (!confirmed) return;
-      this.runFileCommand(
-        "delete",
+      this.$confirm(
+        this.$t("list.action.deleteConfirm", { name: file.name }),
+        this.$t("list.opt.delete"),
         {
-          id: file.id,
-        },
-        "list.action.deleteSuccess"
-      );
+          confirmButtonText: this.$t("common.confirm"),
+          cancelButtonText: this.$t("common.cancel"),
+          type: "warning",
+        }
+      )
+        .then(() => {
+          this.runFileCommand(
+            "delete",
+            {
+              id: file.id,
+            },
+            "list.action.deleteSuccess"
+          );
+        })
+        .catch(() => {});
     },
     renderMd(files, path) {
       var cmd = this.$route.params.cmd;

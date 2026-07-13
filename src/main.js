@@ -1,9 +1,10 @@
 import Vue from "vue";
 import App from "./App.vue";
-import { Loading } from "element-ui";
+import { Loading, MessageBox } from "element-ui";
 import "element-ui/lib/theme-chalk/icon.css";
 import "element-ui/lib/theme-chalk/notification.css";
 import "element-ui/lib/theme-chalk/loading.css";
+import "element-ui/lib/theme-chalk/message-box.css";
 import axios from "@/plugin/axios";
 import VueAxios from "vue-axios";
 import router from "./router";
@@ -25,6 +26,7 @@ document.write(
 Vue.config.productionTip = false;
 Vue.prototype.$cdnpath = cdnpath;
 Vue.use(Loading);
+Vue.use(MessageBox);
 Vue.use(VueAxios, axios);
 Vue.use(Clipboard);
 Vue.use(VueLazyload, {

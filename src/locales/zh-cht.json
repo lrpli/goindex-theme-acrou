@@ -3,6 +3,10 @@
   "languages": "選擇語言",
   "index": "首頁",
   "folder": "文件夾",
+  "common": {
+    "confirm": "確定",
+    "cancel": "取消"
+  },
   "notify": {
     "title": "提示"
   },
@@ -39,6 +43,7 @@
       "renamePrompt": "輸入新的名稱",
       "movePrompt": "輸入目標目錄路徑（例如 /Movies/）",
       "deleteConfirm": "確認刪除「{name}」？",
+      "nameRequired": "名稱不能為空",
       "createFolderSuccess": "新增資料夾成功",
       "renameSuccess": "重新命名成功",
       "moveSuccess": "移動成功",

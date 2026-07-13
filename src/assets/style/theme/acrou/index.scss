@@ -457,7 +457,7 @@ input.input {
   }
 }
 
-// element-ui notification polish
+// element-ui notification / dialog polish
 .el-notification {
   border-radius: var(--g2-radius);
   box-shadow: var(--g2-shadow-lg);
@@ -465,6 +465,30 @@ input.input {
 
   .el-notification__title {
     color: var(--g2-text);
+  }
+}
+
+.el-message-box {
+  border-radius: var(--g2-radius-lg);
+  box-shadow: var(--g2-shadow-lg);
+
+  .el-message-box__title {
+    font-weight: 600;
+  }
+
+  .el-message-box__input .el-input__inner:focus {
+    border-color: var(--g2-primary);
+  }
+
+  .el-button--primary {
+    background-color: var(--g2-primary);
+    border-color: var(--g2-primary);
+
+    &:hover,
+    &:focus {
+      background-color: var(--g2-primary-dark);
+      border-color: var(--g2-primary-dark);
+    }
   }
 }
 

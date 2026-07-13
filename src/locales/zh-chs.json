@@ -3,6 +3,10 @@
   "languages": "选择语言",
   "index": "首页",
   "folder": "文件夹",
+  "common": {
+    "confirm": "确定",
+    "cancel": "取消"
+  },
   "notify": {
     "title": "提示"
   },
@@ -39,6 +43,7 @@
       "renamePrompt": "输入新的名称",
       "movePrompt": "输入目标目录路径（例如 /Movies/）",
       "deleteConfirm": "确认删除“{name}”？",
+      "nameRequired": "名称不能为空",
       "createFolderSuccess": "创建文件夹成功",
       "renameSuccess": "重命名成功",
       "moveSuccess": "移动成功",

@@ -3,6 +3,10 @@
   "languages": "Languages",
   "index": "Home",
   "folder": "Folder",
+  "common": {
+    "confirm": "Confirm",
+    "cancel": "Cancel"
+  },
   "notify": {
     "title": "Notify"
   },
@@ -39,6 +43,7 @@
       "renamePrompt": "Enter new name",
       "movePrompt": "Enter target folder path (e.g. /Movies/)",
       "deleteConfirm": "Delete \"{name}\"?",
+      "nameRequired": "Name cannot be empty",
       "createFolderSuccess": "Folder created",
       "renameSuccess": "Rename successful",
       "moveSuccess": "Move successful",
