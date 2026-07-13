@@ -173,7 +173,7 @@ function html(current_drive_order = 0, model = {}) {
 <head>
 <meta charset="utf-8"> 
 <meta name="viewport" content="width=device-width, initial-scale=1.0,maximum-scale=1.0, user-scalable=no"/> 
-<meta name="theme-color" content="#0b1220">
+<meta name="theme-color" content="#14142b">
 <link rel="icon" type="image/png" sizes="32x32" href="https://i.imgur.com/rOyuGjA.gif">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -185,19 +185,14 @@ function html(current_drive_order = 0, model = {}) {
   <title>${authConfig.siteName}</title>
   <style>
     @import url(${themeOptions.cdn}@${themeOptions.version}/dist/style.min.css);
-    :root {
-      --g2-bg: #0f172a;
-      --g2-bg-soft: #16213b;
-      --g2-surface: rgba(14, 22, 38, 0.78);
-      --g2-surface-strong: rgba(20, 30, 50, 0.92);
-      --g2-border: rgba(164, 184, 218, 0.22);
-      --g2-text: #e6edf8;
-      --g2-muted: #9caecb;
-      --g2-accent: #38bdf8;
-      --g2-shadow: 0 10px 34px rgba(2, 8, 23, 0.38);
-      --g2-shadow-soft: 0 4px 14px rgba(2, 8, 23, 0.2);
-    }
-
+    /*
+      The indigo/light design tokens below (--g2-*) are the same ones the
+      theme's compiled stylesheet already defines and uses for the navbar,
+      breadcrumb, table, buttons, etc. We only need to add the page-level
+      background treatment and a couple of worker-shell-only tweaks here;
+      everything else is inherited from dist/style.min.css so the two stay
+      in sync automatically when the theme is restyled.
+    */
     * {
       box-sizing: border-box;
     }
@@ -210,22 +205,11 @@ function html(current_drive_order = 0, model = {}) {
     body {
       margin: 0;
       font-family: "Manrope", "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
-      color: var(--g2-text);
       background:
-        radial-gradient(1200px 600px at 5% -10%, rgba(56, 189, 248, 0.16), transparent 45%),
-        radial-gradient(900px 500px at 100% 0%, rgba(99, 102, 241, 0.12), transparent 50%),
-        linear-gradient(150deg, var(--g2-bg), var(--g2-bg-soft) 56%, #0d162b);
+        radial-gradient(1200px 600px at 5% -10%, rgba(99, 102, 241, 0.07), transparent 45%),
+        radial-gradient(900px 500px at 100% 0%, rgba(129, 140, 248, 0.05), transparent 50%),
+        var(--g2-bg, #f6f7fb);
       background-attachment: fixed;
-    }
-
-    body::before {
-      content: "";
-      position: fixed;
-      inset: 0;
-      pointer-events: none;
-      background: linear-gradient(to bottom, rgba(255, 255, 255, 0.03), transparent 28%);
-      opacity: 0.55;
-      z-index: 0;
     }
 
     #app {
@@ -235,207 +219,9 @@ function html(current_drive_order = 0, model = {}) {
       padding-bottom: 1.5rem;
     }
 
-    .section {
-      padding: 1.1rem 0.85rem 2rem;
-    }
-
-    .container {
-      max-width: 1120px;
-    }
-
-    .navbar.is-dark {
-      position: sticky;
-      top: 0;
-      z-index: 20;
-      background: rgba(10, 16, 30, 0.78) !important;
-      border-bottom: 1px solid rgba(171, 191, 223, 0.2);
-      box-shadow: var(--g2-shadow-soft);
-      backdrop-filter: blur(14px) saturate(130%);
-    }
-
-    .navbar.is-dark .navbar-item,
-    .navbar.is-dark .navbar-link,
-    .navbar.is-dark .title,
-    .navbar.is-dark .icon {
-      color: #edf4ff !important;
-    }
-
-    .navbar .title {
-      font-weight: 700;
-      letter-spacing: 0.01em;
-      text-shadow: 0 3px 12px rgba(0, 0, 0, 0.28);
-    }
-
-    .navbar-dropdown,
-    .navbar-menu.is-active {
-      background: rgba(13, 21, 37, 0.98) !important;
-      border: 1px solid rgba(167, 187, 219, 0.22);
-    }
-
-    .breadcrumb,
-    .g2-action-toolbar,
-    .g2-library-toolbar,
-    .g2-library-menu,
-    .golist,
-    .markdown-body,
-    .readme-box {
-      background: linear-gradient(180deg, rgba(18, 28, 48, 0.72), rgba(13, 21, 37, 0.82));
-      border: 1px solid var(--g2-border);
-      border-radius: 16px;
-      box-shadow: var(--g2-shadow);
-    }
-
-    .breadcrumb,
-    .g2-action-toolbar,
-    .g2-library-toolbar {
-      padding: 0.75rem 0.9rem;
-      margin-bottom: 0.85rem;
-    }
-
-    .breadcrumb a,
-    .breadcrumb span {
-      color: #d8e5fb;
-    }
-
-    .golist {
-      padding: 0.55rem 0.7rem 0.85rem;
-      backdrop-filter: blur(4px);
-    }
-
-    .table {
-      background: transparent;
-      color: var(--g2-text);
-    }
-
-    .table td,
-    .table th {
-      color: #d7e4fb;
-      border-bottom: 1px solid rgba(165, 186, 221, 0.16) !important;
-    }
-
-    .table thead th {
-      color: #9fb2d5;
-      font-weight: 700;
-    }
-
-    .table tr:hover {
-      background: rgba(56, 189, 248, 0.09);
-    }
-
-    .button,
-    .input,
-    .select select {
-      border-radius: 11px;
-      border: 1px solid rgba(158, 180, 216, 0.35);
-      transition: all 0.18s ease;
-    }
-
-    .button {
-      color: #deebff;
-      background: rgba(56, 189, 248, 0.17);
-    }
-
-    .button:hover {
-      transform: translateY(-1px);
-      background: rgba(56, 189, 248, 0.3);
-      border-color: rgba(125, 211, 252, 0.68);
-      box-shadow: 0 8px 18px rgba(2, 132, 199, 0.24);
-    }
-
-    .button.is-warning {
-      background: rgba(251, 191, 36, 0.2);
-      border-color: rgba(252, 211, 77, 0.72);
-    }
-
-    .input,
-    .select select {
-      background: rgba(12, 20, 35, 0.9);
-      color: #e5efff;
-    }
-
-    .search-input,
-    .search-input::-webkit-input-placeholder {
-      color: #c4d4ef !important;
-    }
-
-    .search-input {
-      background-color: rgba(12, 20, 35, 0.9) !important;
-      border-color: rgba(158, 180, 216, 0.34) !important;
-    }
-
-    .input::placeholder {
-      color: #8ea4cb;
-    }
-
-    .select select:focus,
-    .input:focus {
-      border-color: var(--g2-accent);
-      box-shadow: 0 0 0 0.15rem rgba(56, 189, 248, 0.24);
-    }
-
-    .g2-library-item {
-      width: 100%;
-      justify-content: flex-start;
-      color: #cde1ff !important;
-      border-bottom: 1px dashed rgba(150, 172, 212, 0.24);
-      border-radius: 0;
-      margin: 0 !important;
-      padding: 0.5rem 0 !important;
-    }
-
-    .g2-library-item:last-child {
-      border-bottom: 0;
-    }
-
-    .is-divider::before,
-    .is-divider::after {
-      border-top-color: rgba(150, 172, 212, 0.28) !important;
-    }
-
-    .is-divider[data-content]::after {
-      color: #9bb0d6;
-      background: rgba(10, 17, 30, 0.9);
-      border: 1px solid rgba(162, 183, 220, 0.26);
-      border-radius: 999px;
-      padding: 0.18rem 0.7rem;
-    }
-
-    .footer {
-      color: #95a8c9;
-    }
-
-    .no-content {
-      background-size: 120px;
-      opacity: 0.92;
-    }
-
-    a {
-      color: #7dd3fc;
-    }
-
-    .navbar-item a:hover,
-    a:hover {
-      color: #bae6fd;
-    }
-
     @media (max-width: 768px) {
-      body::before {
-        opacity: 0.35;
-      }
-
       .section {
         padding: 0.95rem 0.5rem 1.4rem;
-      }
-
-      .breadcrumb,
-      .g2-action-toolbar,
-      .g2-library-toolbar,
-      .golist {
-        border-radius: 12px;
-      }
-
-      .button {
-        min-height: 2.1em;
       }
 
       .navbar .title {
