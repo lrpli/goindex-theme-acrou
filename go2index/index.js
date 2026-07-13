@@ -1,12 +1,24 @@
 // =======Options START=======
+function readWorkerEnv(keys, fallback = "") {
+  const env = typeof globalThis !== "undefined" ? globalThis : {};
+  for (const key of keys) {
+    const value = env[key];
+    if (typeof value === "string" && value.length > 0) return value;
+  }
+  return fallback;
+}
+
 var  authConfig  =  {
   siteName : "Chillx",  // site name
   version : "1.1.2" ,  // program version
   theme: "acrou",
-  // It is strongly recommended to use your own client_id and client_secret
-  client_id: "746239575955-oao9hkv614p8glrqpvuh5i8mqfoq145b.apps.googleusercontent.com", // Client id from Google Cloud Console
-    client_secret: "u5a1CSY5pNjdD2tGTU93TTnI",
-    refresh_token: "", // Authorize token
+  // Cloudflare Worker secrets/vars:
+  // GO2INDEX_CLIENT_ID (or CLIENT_ID)
+  // GO2INDEX_CLIENT_SECRET (or CLIENT_SECRET)
+  // GO2INDEX_REFRESH_TOKEN (or REFRESH_TOKEN)
+  client_id: readWorkerEnv(["GO2INDEX_CLIENT_ID", "CLIENT_ID"], ""), // Client id from Google Cloud Console
+    client_secret: readWorkerEnv(["GO2INDEX_CLIENT_SECRET", "CLIENT_SECRET"], ""),
+    refresh_token: readWorkerEnv(["GO2INDEX_REFRESH_TOKEN", "REFRESH_TOKEN"], ""), // Authorize token
   /*
    * Set multiple drives to be displayed; add multiple by format
    * [id]: Can be team disk id, subfolder id, or "root" (representing the root directory of personal disk);
@@ -161,7 +173,11 @@ function html(current_drive_order = 0, model = {}) {
 <head>
 <meta charset="utf-8"> 
 <meta name="viewport" content="width=device-width, initial-scale=1.0,maximum-scale=1.0, user-scalable=no"/> 
+<meta name="theme-color" content="#0b1220">
 <link rel="icon" type="image/png" sizes="32x32" href="https://i.imgur.com/rOyuGjA.gif">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
 <script async src="https://www.googletagmanager.com/gtag/js?id=UA-86099016-6">
 </script>
 <script>window.dataLayer=window.dataLayer || []; function gtag(){dataLayer.push(arguments);}gtag('js', new Date()); gtag('config', 'UA-86099016-6');</script>
@@ -169,6 +185,237 @@ function html(current_drive_order = 0, model = {}) {
   <title>${authConfig.siteName}</title>
   <style>
     @import url(${themeOptions.cdn}@${themeOptions.version}/dist/style.min.css);
+    :root {
+      --g2-bg: #0b1220;
+      --g2-bg-soft: #111b2f;
+      --g2-surface: rgba(18, 27, 46, 0.76);
+      --g2-surface-strong: rgba(24, 36, 62, 0.9);
+      --g2-border: rgba(168, 191, 230, 0.18);
+      --g2-text: #e8efff;
+      --g2-muted: #9fb0d0;
+      --g2-accent: #50a9ff;
+      --g2-shadow: 0 18px 48px rgba(0, 0, 0, 0.34);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      min-height: 100%;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Manrope", "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
+      color: var(--g2-text);
+      background:
+        radial-gradient(circle at 10% 0%, rgba(80, 169, 255, 0.15), transparent 35%),
+        radial-gradient(circle at 90% 10%, rgba(69, 255, 205, 0.1), transparent 40%),
+        linear-gradient(140deg, var(--g2-bg), var(--g2-bg-soft) 52%, #0f1a2d);
+      background-attachment: fixed;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background-image: linear-gradient(rgba(255, 255, 255, 0.015) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
+      background-size: 36px 36px;
+      mask-image: radial-gradient(circle at 50% 40%, black 40%, transparent 85%);
+      opacity: 0.8;
+      z-index: 0;
+    }
+
+    #app {
+      position: relative;
+      z-index: 1;
+      min-height: 100vh;
+      padding-bottom: 1.5rem;
+    }
+
+    .section {
+      padding: 1.25rem 0.85rem 2rem;
+    }
+
+    .container {
+      max-width: 1140px;
+    }
+
+    .navbar.is-dark {
+      background: rgba(9, 15, 26, 0.72) !important;
+      border-bottom: 1px solid rgba(174, 196, 233, 0.16);
+      box-shadow: 0 10px 30px rgba(3, 8, 18, 0.4);
+      backdrop-filter: blur(16px) saturate(120%);
+    }
+
+    .navbar.is-dark .navbar-item,
+    .navbar.is-dark .navbar-link,
+    .navbar.is-dark .title,
+    .navbar.is-dark .icon {
+      color: #edf4ff !important;
+    }
+
+    .navbar .title {
+      font-weight: 800;
+      letter-spacing: 0.02em;
+      text-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
+    }
+
+    .navbar-dropdown,
+    .navbar-menu.is-active {
+      background: rgba(16, 24, 42, 0.98) !important;
+      border: 1px solid var(--g2-border);
+    }
+
+    .breadcrumb,
+    .g2-action-toolbar,
+    .g2-library-toolbar,
+    .g2-library-menu,
+    .golist,
+    .markdown-body,
+    .readme-box {
+      background: var(--g2-surface);
+      border: 1px solid var(--g2-border);
+      border-radius: 14px;
+      box-shadow: var(--g2-shadow);
+    }
+
+    .breadcrumb,
+    .g2-action-toolbar,
+    .g2-library-toolbar {
+      padding: 0.75rem 0.95rem;
+      margin-bottom: 0.95rem;
+    }
+
+    .breadcrumb a,
+    .breadcrumb span {
+      color: #d9e8ff;
+    }
+
+    .golist {
+      padding: 0.45rem 0.65rem 0.85rem;
+      backdrop-filter: blur(4px);
+    }
+
+    .table {
+      background: transparent;
+      color: var(--g2-text);
+    }
+
+    .table td,
+    .table th {
+      color: #dce8ff;
+      border-bottom: 1px solid rgba(167, 188, 223, 0.14) !important;
+    }
+
+    .table tr:hover {
+      background: rgba(112, 171, 255, 0.08);
+    }
+
+    .button,
+    .input,
+    .select select {
+      border-radius: 10px;
+      border: 1px solid rgba(169, 191, 227, 0.32);
+      transition: all 0.2s ease;
+    }
+
+    .button {
+      color: #e7f1ff;
+      background: rgba(95, 166, 255, 0.18);
+    }
+
+    .button:hover {
+      transform: translateY(-1px);
+      background: rgba(95, 166, 255, 0.28);
+      border-color: rgba(140, 198, 255, 0.64);
+    }
+
+    .button.is-warning {
+      background: rgba(255, 190, 76, 0.24);
+      border-color: rgba(255, 203, 113, 0.7);
+    }
+
+    .input,
+    .select select {
+      background: rgba(14, 22, 38, 0.9);
+      color: #e5efff;
+    }
+
+    .input::placeholder {
+      color: #8ea2c9;
+    }
+
+    .select select:focus,
+    .input:focus {
+      border-color: var(--g2-accent);
+      box-shadow: 0 0 0 0.14rem rgba(80, 169, 255, 0.24);
+    }
+
+    .g2-library-item {
+      width: 100%;
+      justify-content: flex-start;
+      color: #cfe1ff !important;
+      border-bottom: 1px dashed rgba(155, 179, 221, 0.2);
+      border-radius: 0;
+      margin: 0 !important;
+      padding: 0.5rem 0 !important;
+    }
+
+    .g2-library-item:last-child {
+      border-bottom: 0;
+    }
+
+    .is-divider::before,
+    .is-divider::after {
+      border-top-color: rgba(164, 187, 228, 0.24) !important;
+    }
+
+    .is-divider[data-content]::after {
+      color: #9eb1d6;
+      background: rgba(11, 18, 32, 0.88);
+      border: 1px solid rgba(172, 194, 231, 0.2);
+      border-radius: 999px;
+      padding: 0.18rem 0.7rem;
+    }
+
+    .footer {
+      color: #8fa3c9;
+    }
+
+    .no-content {
+      background-size: 130px;
+      opacity: 0.95;
+    }
+
+    a {
+      color: #9ad2ff;
+    }
+
+    @media (max-width: 768px) {
+      body::before {
+        opacity: 0.45;
+      }
+
+      .section {
+        padding: 0.95rem 0.45rem 1.5rem;
+      }
+
+      .breadcrumb,
+      .g2-action-toolbar,
+      .g2-library-toolbar,
+      .golist {
+        border-radius: 12px;
+      }
+
+      .navbar .title {
+        font-size: 1.4rem !important;
+      }
+    }
   </style>
   <script>
     window.gdconfig = JSON.parse('${JSON.stringify({
