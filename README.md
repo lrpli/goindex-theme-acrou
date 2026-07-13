@@ -1,16 +1,16 @@
 
 
-# 🍿[Google-Drive-Directory-Index](https://github.com/Aicirou/goindex-theme-acrou)
+# 🍿[Codex Drive Nebula](https://github.com/lrpli/goindex-theme-acrou)
 Combining the power of [Cloudflare Workers](https://workers.cloudflare.com/) and [Google Drive](https://www.google.com/drive/) will allow you to index your Google Drive files on the browser.    
 
-[go2index/index.js](https://github.com/Aicirou/goindex-theme-acrou/blob/main/go2index/index.js) is the content of the Workers script.  
+[go2index/index.js](https://github.com/lrpli/goindex-theme-acrou/blob/main/go2index/index.js) is the content of the Workers script.  
 
 This theme's goindex is currently based on [yanzai/goindex](https://github.com/yanzai/goindex/).
 ## Demo  
 
 🚀 Go to: [https://chill.aicirou.workers.dev/](https://chill.aicirou.workers.dev/) 
 
-🛠 Quick Development: [here/](https://github.com/Aicirou/goindex-theme-acrou/edit/main/README.md#quick-deployment)
+🛠 Quick Development: [here/](https://github.com/lrpli/goindex-theme-acrou/edit/main/README.md#quick-deployment)
 
 ## ✨Features
 
@@ -46,7 +46,7 @@ This theme's goindex is currently based on [yanzai/goindex](https://github.com/y
 2. Create a [OAuth client ID](https://console.developers.google.com/apis/credentials/oauthclient)
 3. Install [rclone](https://rclone.org/downloads/) software locally
 4. Get `refresh_token ` with `rclone`
-5. Download `index.js` in https://github.com/Aicirou/goindex-theme-acrou/tree/master/go2index and replace `client_id`,`client_secret`,`refresh_token` for what you just got.
+5. Download `index.js` in https://github.com/lrpli/goindex-theme-acrou/tree/main/go2index and replace `client_id`,`client_secret`,`refresh_token` for what you just got.
 6. Deploy the code to [Cloudflare Workers](https://www.cloudflare.com/)
 
 ## Options
@@ -140,11 +140,11 @@ For more option, see APlayer [options](https://aplayer.js.org/#/home?id=options)
 
 ## Star History
 
-<a href="https://star-history.com/#Aicirou/goindex-theme-acrou&Date">
+<a href="https://star-history.com/#lrpli/goindex-theme-acrou&Date">
  <picture>
-   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=Aicirou/goindex-theme-acrou&type=Date&theme=dark" />
-   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=Aicirou/goindex-theme-acrou&type=Date" />
-   <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=Aicirou/goindex-theme-acrou&type=Date" />
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=lrpli/goindex-theme-acrou&type=Date&theme=dark" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=lrpli/goindex-theme-acrou&type=Date" />
+   <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=lrpli/goindex-theme-acrou&type=Date" />
  </picture>
 </a>
 

@@ -186,15 +186,16 @@ function html(current_drive_order = 0, model = {}) {
   <style>
     @import url(${themeOptions.cdn}@${themeOptions.version}/dist/style.min.css);
     :root {
-      --g2-bg: #0b1220;
-      --g2-bg-soft: #111b2f;
-      --g2-surface: rgba(18, 27, 46, 0.76);
-      --g2-surface-strong: rgba(24, 36, 62, 0.9);
-      --g2-border: rgba(168, 191, 230, 0.18);
-      --g2-text: #e8efff;
-      --g2-muted: #9fb0d0;
-      --g2-accent: #50a9ff;
-      --g2-shadow: 0 18px 48px rgba(0, 0, 0, 0.34);
+      --g2-bg: #0f172a;
+      --g2-bg-soft: #16213b;
+      --g2-surface: rgba(14, 22, 38, 0.78);
+      --g2-surface-strong: rgba(20, 30, 50, 0.92);
+      --g2-border: rgba(164, 184, 218, 0.22);
+      --g2-text: #e6edf8;
+      --g2-muted: #9caecb;
+      --g2-accent: #38bdf8;
+      --g2-shadow: 0 10px 34px rgba(2, 8, 23, 0.38);
+      --g2-shadow-soft: 0 4px 14px rgba(2, 8, 23, 0.2);
     }
 
     * {
@@ -211,9 +212,9 @@ function html(current_drive_order = 0, model = {}) {
       font-family: "Manrope", "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
       color: var(--g2-text);
       background:
-        radial-gradient(circle at 10% 0%, rgba(80, 169, 255, 0.15), transparent 35%),
-        radial-gradient(circle at 90% 10%, rgba(69, 255, 205, 0.1), transparent 40%),
-        linear-gradient(140deg, var(--g2-bg), var(--g2-bg-soft) 52%, #0f1a2d);
+        radial-gradient(1200px 600px at 5% -10%, rgba(56, 189, 248, 0.16), transparent 45%),
+        radial-gradient(900px 500px at 100% 0%, rgba(99, 102, 241, 0.12), transparent 50%),
+        linear-gradient(150deg, var(--g2-bg), var(--g2-bg-soft) 56%, #0d162b);
       background-attachment: fixed;
     }
 
@@ -222,11 +223,8 @@ function html(current_drive_order = 0, model = {}) {
       position: fixed;
       inset: 0;
       pointer-events: none;
-      background-image: linear-gradient(rgba(255, 255, 255, 0.015) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
-      background-size: 36px 36px;
-      mask-image: radial-gradient(circle at 50% 40%, black 40%, transparent 85%);
-      opacity: 0.8;
+      background: linear-gradient(to bottom, rgba(255, 255, 255, 0.03), transparent 28%);
+      opacity: 0.55;
       z-index: 0;
     }
 
@@ -238,18 +236,21 @@ function html(current_drive_order = 0, model = {}) {
     }
 
     .section {
-      padding: 1.25rem 0.85rem 2rem;
+      padding: 1.1rem 0.85rem 2rem;
     }
 
     .container {
-      max-width: 1140px;
+      max-width: 1120px;
     }
 
     .navbar.is-dark {
-      background: rgba(9, 15, 26, 0.72) !important;
-      border-bottom: 1px solid rgba(174, 196, 233, 0.16);
-      box-shadow: 0 10px 30px rgba(3, 8, 18, 0.4);
-      backdrop-filter: blur(16px) saturate(120%);
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      background: rgba(10, 16, 30, 0.78) !important;
+      border-bottom: 1px solid rgba(171, 191, 223, 0.2);
+      box-shadow: var(--g2-shadow-soft);
+      backdrop-filter: blur(14px) saturate(130%);
     }
 
     .navbar.is-dark .navbar-item,
@@ -260,15 +261,15 @@ function html(current_drive_order = 0, model = {}) {
     }
 
     .navbar .title {
-      font-weight: 800;
-      letter-spacing: 0.02em;
-      text-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
+      font-weight: 700;
+      letter-spacing: 0.01em;
+      text-shadow: 0 3px 12px rgba(0, 0, 0, 0.28);
     }
 
     .navbar-dropdown,
     .navbar-menu.is-active {
-      background: rgba(16, 24, 42, 0.98) !important;
-      border: 1px solid var(--g2-border);
+      background: rgba(13, 21, 37, 0.98) !important;
+      border: 1px solid rgba(167, 187, 219, 0.22);
     }
 
     .breadcrumb,
@@ -278,26 +279,26 @@ function html(current_drive_order = 0, model = {}) {
     .golist,
     .markdown-body,
     .readme-box {
-      background: var(--g2-surface);
+      background: linear-gradient(180deg, rgba(18, 28, 48, 0.72), rgba(13, 21, 37, 0.82));
       border: 1px solid var(--g2-border);
-      border-radius: 14px;
+      border-radius: 16px;
       box-shadow: var(--g2-shadow);
     }
 
     .breadcrumb,
     .g2-action-toolbar,
     .g2-library-toolbar {
-      padding: 0.75rem 0.95rem;
-      margin-bottom: 0.95rem;
+      padding: 0.75rem 0.9rem;
+      margin-bottom: 0.85rem;
     }
 
     .breadcrumb a,
     .breadcrumb span {
-      color: #d9e8ff;
+      color: #d8e5fb;
     }
 
     .golist {
-      padding: 0.45rem 0.65rem 0.85rem;
+      padding: 0.55rem 0.7rem 0.85rem;
       backdrop-filter: blur(4px);
     }
 
@@ -308,59 +309,75 @@ function html(current_drive_order = 0, model = {}) {
 
     .table td,
     .table th {
-      color: #dce8ff;
-      border-bottom: 1px solid rgba(167, 188, 223, 0.14) !important;
+      color: #d7e4fb;
+      border-bottom: 1px solid rgba(165, 186, 221, 0.16) !important;
+    }
+
+    .table thead th {
+      color: #9fb2d5;
+      font-weight: 700;
     }
 
     .table tr:hover {
-      background: rgba(112, 171, 255, 0.08);
+      background: rgba(56, 189, 248, 0.09);
     }
 
     .button,
     .input,
     .select select {
-      border-radius: 10px;
-      border: 1px solid rgba(169, 191, 227, 0.32);
-      transition: all 0.2s ease;
+      border-radius: 11px;
+      border: 1px solid rgba(158, 180, 216, 0.35);
+      transition: all 0.18s ease;
     }
 
     .button {
-      color: #e7f1ff;
-      background: rgba(95, 166, 255, 0.18);
+      color: #deebff;
+      background: rgba(56, 189, 248, 0.17);
     }
 
     .button:hover {
       transform: translateY(-1px);
-      background: rgba(95, 166, 255, 0.28);
-      border-color: rgba(140, 198, 255, 0.64);
+      background: rgba(56, 189, 248, 0.3);
+      border-color: rgba(125, 211, 252, 0.68);
+      box-shadow: 0 8px 18px rgba(2, 132, 199, 0.24);
     }
 
     .button.is-warning {
-      background: rgba(255, 190, 76, 0.24);
-      border-color: rgba(255, 203, 113, 0.7);
+      background: rgba(251, 191, 36, 0.2);
+      border-color: rgba(252, 211, 77, 0.72);
     }
 
     .input,
     .select select {
-      background: rgba(14, 22, 38, 0.9);
+      background: rgba(12, 20, 35, 0.9);
       color: #e5efff;
     }
 
+    .search-input,
+    .search-input::-webkit-input-placeholder {
+      color: #c4d4ef !important;
+    }
+
+    .search-input {
+      background-color: rgba(12, 20, 35, 0.9) !important;
+      border-color: rgba(158, 180, 216, 0.34) !important;
+    }
+
     .input::placeholder {
-      color: #8ea2c9;
+      color: #8ea4cb;
     }
 
     .select select:focus,
     .input:focus {
       border-color: var(--g2-accent);
-      box-shadow: 0 0 0 0.14rem rgba(80, 169, 255, 0.24);
+      box-shadow: 0 0 0 0.15rem rgba(56, 189, 248, 0.24);
     }
 
     .g2-library-item {
       width: 100%;
       justify-content: flex-start;
-      color: #cfe1ff !important;
-      border-bottom: 1px dashed rgba(155, 179, 221, 0.2);
+      color: #cde1ff !important;
+      border-bottom: 1px dashed rgba(150, 172, 212, 0.24);
       border-radius: 0;
       margin: 0 !important;
       padding: 0.5rem 0 !important;
@@ -372,37 +389,42 @@ function html(current_drive_order = 0, model = {}) {
 
     .is-divider::before,
     .is-divider::after {
-      border-top-color: rgba(164, 187, 228, 0.24) !important;
+      border-top-color: rgba(150, 172, 212, 0.28) !important;
     }
 
     .is-divider[data-content]::after {
-      color: #9eb1d6;
-      background: rgba(11, 18, 32, 0.88);
-      border: 1px solid rgba(172, 194, 231, 0.2);
+      color: #9bb0d6;
+      background: rgba(10, 17, 30, 0.9);
+      border: 1px solid rgba(162, 183, 220, 0.26);
       border-radius: 999px;
       padding: 0.18rem 0.7rem;
     }
 
     .footer {
-      color: #8fa3c9;
+      color: #95a8c9;
     }
 
     .no-content {
-      background-size: 130px;
-      opacity: 0.95;
+      background-size: 120px;
+      opacity: 0.92;
     }
 
     a {
-      color: #9ad2ff;
+      color: #7dd3fc;
+    }
+
+    .navbar-item a:hover,
+    a:hover {
+      color: #bae6fd;
     }
 
     @media (max-width: 768px) {
       body::before {
-        opacity: 0.45;
+        opacity: 0.35;
       }
 
       .section {
-        padding: 0.95rem 0.45rem 1.5rem;
+        padding: 0.95rem 0.5rem 1.4rem;
       }
 
       .breadcrumb,
@@ -412,8 +434,12 @@ function html(current_drive_order = 0, model = {}) {
         border-radius: 12px;
       }
 
+      .button {
+        min-height: 2.1em;
+      }
+
       .navbar .title {
-        font-size: 1.4rem !important;
+        font-size: 1.25rem !important;
       }
     }
   </style>
