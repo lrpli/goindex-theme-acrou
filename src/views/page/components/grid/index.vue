@@ -228,13 +228,18 @@ export default {
 }
 .g2-grid-view-card {
   position: relative;
-  //   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05), 0 0 1px rgba(0, 0, 0, 0.1);
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2), 0 0 1px rgba(0, 0, 0, 0.05);
-  border-radius: 0.5rem;
+  background: var(--g2-surface);
+  box-shadow: var(--g2-shadow);
+  border: 1px solid var(--g2-border);
+  border-radius: var(--g2-radius);
+  overflow: hidden;
+  transition: transform var(--g2-transition), box-shadow var(--g2-transition),
+    border-color var(--g2-transition);
   .card-image {
     img {
-      border-top-left-radius: 0.5rem;
-      border-top-right-radius: 0.5rem;
+      border-top-left-radius: var(--g2-radius);
+      border-top-right-radius: var(--g2-radius);
+      transition: transform var(--g2-transition);
     }
     .file-icon {
       width: 64px;
@@ -243,10 +248,17 @@ export default {
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
+      color: var(--g2-primary);
     }
   }
   &:hover {
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4), 0 0 1px rgba(0, 0, 0, 0.05);
+    transform: translateY(-3px);
+    box-shadow: var(--g2-shadow-lg);
+    border-color: var(--g2-primary-soft);
+
+    .card-image img {
+      transform: scale(1.04);
+    }
   }
   .g2-grid-view-file {
     .content {
@@ -263,13 +275,23 @@ export default {
   height: 2rem;
   padding: 0;
   color: #fff;
-  background: rgba(0, 0, 0, 0.45);
+  background: rgba(20, 20, 43, 0.45);
   border: 0;
   border-radius: 50%;
   cursor: pointer;
+  transition: transform var(--g2-transition), background-color var(--g2-transition);
+
+  &:hover {
+    background: rgba(20, 20, 43, 0.7);
+    transform: scale(1.08);
+  }
 }
 .g2-grid-view-folder {
   padding: 10px;
+
+  .iconfont {
+    color: var(--g2-primary);
+  }
 }
 .g2-grid-actions {
   display: flex;

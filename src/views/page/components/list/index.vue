@@ -160,4 +160,15 @@ export default {
   float: right;
   margin-left: 0.5rem;
 }
+.iconfont {
+  color: var(--g2-primary);
+  margin-right: 0.15rem;
+}
+.icon {
+  transition: color var(--g2-transition), transform var(--g2-transition);
+  &:hover {
+    color: var(--g2-primary);
+    transform: translateY(-1px);
+  }
+}
 </style>

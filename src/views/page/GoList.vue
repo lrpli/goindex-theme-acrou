@@ -775,11 +775,12 @@ export default {
   display: flex;
   flex-wrap: wrap;
   gap: 1rem;
-  padding: 0.75rem 1rem;
+  padding: 0.85rem 1.1rem;
   margin-bottom: 1rem;
-  background: #fff;
-  border-radius: 0.5rem;
-  box-shadow: 0 2px 8px rgba(10, 10, 10, 0.12);
+  background: var(--g2-surface);
+  border: 1px solid var(--g2-border);
+  border-radius: var(--g2-radius);
+  box-shadow: var(--g2-shadow);
 }
 .g2-library-section {
   display: flex;
@@ -793,9 +794,16 @@ export default {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  border-radius: var(--g2-radius-sm);
+  transition: background-color var(--g2-transition), color var(--g2-transition);
+
+  &:hover {
+    background: var(--g2-primary-light);
+    color: var(--g2-primary-dark);
+  }
 }
 .g2-library-item .fa {
   width: 1.5rem;
-  color: #ffdd57;
+  color: #f5a623;
 }
 </style>

@@ -104,9 +104,13 @@ export default {
 </script>
 <style lang="scss" scoped>
 .g2-breadcrumb {
-  border-bottom: 2px solid #f5f5f5;
-  // height: 100%;
-  padding: 10px 0.75em;
+  background: var(--g2-surface);
+  border: 1px solid var(--g2-border);
+  border-bottom: 1px solid var(--g2-border);
+  border-radius: var(--g2-radius);
+  box-shadow: var(--g2-shadow-sm);
+  margin: 0.75rem 0;
+  padding: 0.6rem 0.9em;
 }
 .level-left {
   width: 95%;
@@ -117,13 +121,17 @@ export default {
 }
 .level-right {
   .level-item {
-    // border-radius: 50%;
-    // height: 40px;
-    // width: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 32px;
+    width: 32px;
+    border-radius: 50%;
+    color: var(--g2-text-light);
+    transition: background-color var(--g2-transition), color var(--g2-transition);
     &:hover {
-      // border: 1px dotted transparent;
-      // background: rgba(0, 0, 0, 0.12);
-      // text-decoration: none;
+      background: var(--g2-primary-light);
+      color: var(--g2-primary-dark);
       cursor: pointer;
     }
   }
