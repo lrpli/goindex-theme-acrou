@@ -1,0 +1,11 @@
+name = "goindex-theme-acrou"
+main = "go2index/index.js"
+compatibility_date = "2026-07-13"
+
+# client_id / client_secret / refresh_token are read from the Worker's
+# environment at runtime (see readWorkerEnv() in go2index/index.js), so set
+# them as secrets rather than plaintext vars:
+#   npx wrangler secret put GO2INDEX_CLIENT_ID
+#   npx wrangler secret put GO2INDEX_CLIENT_SECRET
+#   npx wrangler secret put GO2INDEX_REFRESH_TOKEN
+# (or via Cloudflare dashboard -> Worker -> Settings -> Variables)
