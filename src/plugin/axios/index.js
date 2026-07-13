@@ -30,21 +30,24 @@ service.interceptors.response.use(
     return response;
   },
   (error) => {
-    if (error && error.response) {
-      switch (error.response.status) {
-        case 401:
-          error.message = "error.401";
-          notify({
-            title: "notify.title",
-            message: error.message,
-            type: "error",
-            duration: 5 * 1000,
-          });
-          break;
-        default:
-          console.log(error);
-          break;
-      }
+    if (axios.isCancel(error)) {
+      return Promise.reject(error);
+    }
+    if (error && error.response && error.response.status === 401) {
+      notify({
+        title: "notify.title",
+        message: "error.401",
+        type: "error",
+        duration: 5 * 1000,
+      });
+    } else {
+      console.log(error);
+      notify({
+        title: "notify.title",
+        message: "error.request_failed",
+        type: "error",
+        duration: 5 * 1000,
+      });
     }
     return Promise.reject(error);
   }

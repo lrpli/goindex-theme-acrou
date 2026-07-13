@@ -46,7 +46,7 @@ module.exports = {
       },
     },
   },
-  configureWebpack: (config) => {
+  configureWebpack: () => {
     const configNew = {};
     if (isProd) {
       configNew.externals = externals;
@@ -65,6 +65,11 @@ module.exports = {
   },
 
   chainWebpack: (config) => {
+    // webpack 4's default md4 hash relies on OpenSSL algorithms that
+    // Node 17+'s OpenSSL 3 no longer exposes by default, which breaks
+    // `npm run build` with ERR_OSSL_EVP_UNSUPPORTED. sha256 is always
+    // available and sidesteps the issue without needing
+    // --openssl-legacy-provider.
     config.plugin("BuildAppJSPlugin").use(BuildAppJSPlugin);
     /*
      Add CDN parameter to htmlWebpackPlugin configuration

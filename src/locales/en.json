@@ -107,6 +107,7 @@
   },
   "error": {
     "shortcut_not_down": "Shortcut can't open/download",
-    "401": "Unauthorized, please login"
+    "401": "Unauthorized, please login",
+    "request_failed": "Request failed, please try again"
   }
 }

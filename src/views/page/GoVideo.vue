@@ -80,7 +80,7 @@
 import { decode64 } from "@utils/AcrouUtil";
 import VuePlyr from "vue-plyr";
 export default {
-  comments: {
+  components: {
     VuePlyr,
   },
   data: function() {

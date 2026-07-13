@@ -25,8 +25,11 @@ export default {
 </script>
 
 <style scoped>
-object{
-    width: 100%;
-    height: -webkit-fill-available;
+object {
+  width: 100%;
+  height: 80vh;
+  height: -webkit-fill-available;
+  border-radius: var(--g2-radius);
+  box-shadow: var(--g2-shadow);
 }
 </style>

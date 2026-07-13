@@ -1,10 +1,10 @@
 {
   "name": "codex-drive-nebula",
-  "version": "2.0.10",
+  "version": "2.0.11",
   "g2index": "1.1.2",
   "scripts": {
-    "serve": "vue-cli-service serve",
-    "build": "vue-cli-service build",
+    "serve": "cross-env NODE_OPTIONS=--openssl-legacy-provider vue-cli-service serve",
+    "build": "cross-env NODE_OPTIONS=--openssl-legacy-provider vue-cli-service build",
     "lint": "vue-cli-service lint",
     "analyz": "npm_config_report=true npm run build",
     "i18n:report": "vue-cli-service i18n:report --src './src/**/*.?(js|vue)' --locales './src/locales/**/*.json'"
@@ -49,6 +49,7 @@
     "babel-eslint": "^10.1.0",
     "babel-plugin-component": "^1.1.1",
     "compression-webpack-plugin": "^4.0.0",
+    "cross-env": "^10.1.0",
     "eslint": "^6.7.2",
     "eslint-plugin-vue": "^6.2.2",
     "fs": "0.0.1-security",

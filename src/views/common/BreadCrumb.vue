@@ -74,7 +74,7 @@ export default {
       if (cmd) {
         path = decode64(this.$route.params.path);
       }
-      var arr = path.trim("/").split("/");
+      var arr = path.replace(/^\/+|\/+$/g, "").split("/");
       var p = "/";
       if (arr.length > 0) {
         var navs = [];

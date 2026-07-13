@@ -112,7 +112,7 @@ export default {
   methods: {
     chooseGD() {
       let index = this.$route.params.id;
-      if (this.gds && this.gds.length >= index) {
+      if (this.gds && this.gds.length > index) {
         this.currgd = this.gds[index];
       }
     },

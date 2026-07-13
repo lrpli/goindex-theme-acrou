@@ -19,10 +19,7 @@ const pdf_exts = ["pdf"];
 
 export const encodePath = (path) => {
   return path.replace(/(.*)/, (p1, p2) => {
-    return p2
-      .replace()
-      .replace(/\//g, "%2F")
-      .replace(/#/g, "%23");
+    return p2.replace(/\//g, "%2F").replace(/#/g, "%23");
   });
   //return path.replace().replace("/", "%2F").replace("#", "%23")
 };

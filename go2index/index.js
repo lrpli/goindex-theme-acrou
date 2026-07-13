@@ -78,7 +78,7 @@ var  authConfig  =  {
 var themeOptions = {
   cdn: "https://cdn.jsdelivr.net/gh/lrpli/goindex-theme-acrou",
 // Theme version number
-  version: "2.0.10",
+  version: "2.0.11",
 //Optional default system language: en/zh-chs/zh-cht
   languages: "en",
   render: {
@@ -184,13 +184,13 @@ function html(current_drive_order = 0, model = {}) {
 <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','GTM-MR47R4M');</script> 
   <title>${authConfig.siteName}</title>
   <style>
-    @import url(${themeOptions.cdn}@${themeOptions.version}/dist/style.min.css);
+    @import url(${themeOptions.cdn}@${themeOptions.version}/dist/style.css);
     /*
       The indigo/light design tokens below (--g2-*) are the same ones the
       theme's compiled stylesheet already defines and uses for the navbar,
       breadcrumb, table, buttons, etc. We only need to add the page-level
       background treatment and a couple of worker-shell-only tweaks here;
-      everything else is inherited from dist/style.min.css so the two stay
+      everything else is inherited from dist/style.css so the two stay
       in sync automatically when the theme is restyled.
     */
     * {
@@ -246,7 +246,7 @@ function html(current_drive_order = 0, model = {}) {
     <div id="app"></div>
     <script src="${themeOptions.cdn}@${
     themeOptions.version
-  }/dist/app.min.js">
+  }/dist/app.js">
   </script>
 </body>
 </html>
