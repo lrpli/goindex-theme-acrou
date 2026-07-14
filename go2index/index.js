@@ -254,14 +254,15 @@ function html(current_drive_order = 0, model = {}) {
 }
 
 addEventListener("fetch", (event) => {
-  event.respondWith(handleRequest(event.request));
+  event.respondWith(handleRequest(event.request, event));
 });
 
 /**
  * Fetch and log a request
  * @param {Request} request
+ * @param {FetchEvent} event
  */
-async function handleRequest(request) {
+async function handleRequest(request, event) {
   if (gds.length === 0) {
     for (let i = 0; i < authConfig.roots.length; i++) {
       const gd = new googleDrive(authConfig, i);
@@ -344,7 +345,7 @@ async function handleRequest(request) {
       return handleFileOperation(request, gd, command);
     } else if (command === "view") {
       const params = url.searchParams;
-      return gd.view(params.get("url"), request.headers.get("Range"));
+      return gd.view(params.get("url"), request.headers.get("Range"), true, event);
     } else if (command !== "down" && request.method === "GET") {
       return new Response(html(gd.order, { root_type: gd.root_type }), {
         status: 200,
@@ -404,7 +405,7 @@ async function handleRequest(request) {
     let range = request.headers.get("Range");
     if (gd.root.protect_file_link && basic_auth_res) return basic_auth_res;
     const is_down = !(command && command == "down");
-    return gd.down(file.id, range, is_down);
+    return gd.down(file.id, range, is_down, event);
   }
 }
 
@@ -721,10 +722,8 @@ class googleDrive {
     return _401;
   }
 
-  async view(url, range = "", inline = true) {
-    let requestOption = await this.requestOption();
-    requestOption.headers["Range"] = range;
-    let res = await fetch(url, requestOption);
+  async view(url, range = "", inline = true, event = null) {
+    let res = await this.fetchMedia(url, range, event);
     const { headers } = (res = new Response(res.body, res));
     this.authConfig.enable_cors_file_down &&
       headers.append("Access-Control-Allow-Origin", "*");
@@ -732,15 +731,57 @@ class googleDrive {
     return res;
   }
 
-  async down(id, range = "", inline = false) {
+  async down(id, range = "", inline = false, event = null) {
     let url = `https://www.googleapis.com/drive/v3/files/${id}?alt=media`;
-    let requestOption = await this.requestOption();
-    requestOption.headers["Range"] = range;
-    let res = await fetch(url, requestOption);
+    let res = await this.fetchMedia(url, range, event);
     const { headers } = (res = new Response(res.body, res));
     this.authConfig.enable_cors_file_down &&
       headers.append("Access-Control-Allow-Origin", "*");
     inline === true && headers.set("Content-Disposition", "inline");
+    return res;
+  }
+
+  /**
+   * Fetches file bytes from Drive, transparently going through Cloudflare's edge
+   * cache so that repeat plays/seeks of the same file+byte-range (very common for
+   * shared videos - same intro/moov-atom range requested by every viewer) are
+   * served from the edge instead of round-tripping to the Drive API every time.
+   * The exact Range header is baked into the cache key so this can never return
+   * bytes for the wrong range - a cache miss just falls back to today's behavior.
+   */
+  async fetchMedia(url, range, event) {
+    const cache = typeof caches !== "undefined" ? caches.default : null;
+    const cacheKey = cache
+      ? new Request(
+          url + (url.includes("?") ? "&" : "?") + "cf_range=" + encodeURIComponent(range || "")
+        )
+      : null;
+
+    if (cache) {
+      const cached = await cache.match(cacheKey);
+      if (cached) return cached;
+    }
+
+    let requestOption = await this.requestOption();
+    requestOption.headers["Range"] = range;
+    let res = await fetch(url, requestOption);
+
+    if (
+      cache &&
+      event &&
+      (res.status === 200 || res.status === 206) &&
+      res.headers.get("content-length")
+    ) {
+      const headers = new Headers(res.headers);
+      headers.set("Cache-Control", "public, max-age=3600");
+      const toCache = new Response(res.clone().body, {
+        status: res.status,
+        statusText: res.statusText,
+        headers,
+      });
+      event.waitUntil(cache.put(cacheKey, toCache).catch(() => {}));
+    }
+
     return res;
   }
 
